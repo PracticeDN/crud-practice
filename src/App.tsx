@@ -4,6 +4,13 @@ import { getProductsAllApi } from "./api/home";
 import useOnChange from "./hooks/useOnChange";
 import useHandleSubmit from "./hooks/useHandleSubmit";
 import useDeleteProduct from "./hooks/useDeleteProduct";
+import Modal from "./components/modal/Modal";
+import {
+  Button,
+  Input,
+  InputSection,
+  Label,
+} from "./components/common/commonUI";
 
 function App() {
   const fetchData = async () => {
@@ -19,8 +26,8 @@ function App() {
   const { handleChange } = useOnChange({ setValues });
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const { handleDeleteProduct } = useDeleteProduct(fetchData);
-
   const { handleSubmit } = useHandleSubmit({ values, setValues, fetchData });
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
     fetchData();
@@ -70,13 +77,31 @@ function App() {
             <Product key={product.id}>
               <ProductName>{product.product}</ProductName>
               <ProductPrice>{product.price}원</ProductPrice>
-              <DeleteButton
-                onClick={() => {
-                  handleDeleteProduct(product.id);
-                }}
-              >
-                삭제
-              </DeleteButton>
+
+              <Buttons>
+                <EditButton
+                  onClick={() => {
+                    setShowModal(true);
+                  }}
+                >
+                  수정
+                </EditButton>
+                <DeleteButton
+                  onClick={() => {
+                    handleDeleteProduct(product.id);
+                  }}
+                >
+                  삭제
+                </DeleteButton>
+              </Buttons>
+
+              {showModal && (
+                <Modal
+                  product={product}
+                  setShowModal={setShowModal}
+                  fetchData={fetchData}
+                />
+              )}
             </Product>
           ))}
         </ProductList>
@@ -119,30 +144,6 @@ const InputWrapper = styled.div`
   margin-bottom: 2rem;
 `;
 
-const InputSection = styled.section`
-  display: flex;
-  flex-direction: column;
-  width: 50%;
-`;
-
-const Label = styled.label`
-  font-size: 1.6rem;
-  margin-bottom: 1rem;
-`;
-
-const Input = styled.input`
-  border: none;
-  border-bottom: 1px solid #c6c6c6;
-  outline: none;
-`;
-
-const Button = styled.button`
-  border: none;
-  color: white;
-  border-radius: 1rem;
-  cursor: pointer;
-`;
-
 const SubmitButton = styled(Button)`
   background-color: #1677ff;
   font-size: 1.6rem;
@@ -172,13 +173,23 @@ const ProductPrice = styled.p`
   color: #aaaaaa;
 `;
 
-const DeleteButton = styled(Button)`
-  background-color: #eb4a4a;
-  padding: 0.75rem 1.5rem;
+const Buttons = styled.section`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   right: 2rem;
+  display: flex;
+  gap: 2rem;
+`;
+
+const EditButton = styled(Button)`
+  background-color: #1677ff;
+  padding: 0.75rem 1.5rem;
+`;
+
+const DeleteButton = styled(Button)`
+  background-color: #eb4a4a;
+  padding: 0.75rem 1.5rem;
 `;
 
 const TotalPrice = styled.p`

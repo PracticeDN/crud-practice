@@ -1,3 +1,14 @@
 {
-  "products": []
+  "products": [
+    {
+      "id": "36da",
+      "product": "맥북",
+      "price": "3000"
+    },
+    {
+      "product": "수정된 맥북",
+      "price": "4000",
+      "id": "dee8"
+    }
+  ]
 }

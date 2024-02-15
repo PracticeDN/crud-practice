@@ -13,4 +13,8 @@ const deleteProductApi = (id: string): Promise<AxiosResponse> => {
   return apiInstance.delete(`/${id}`);
 };
 
-export { getProductsAllApi, addProductApi, deleteProductApi };
+const updateProductApi = (id: string, data: IValue): Promise<AxiosResponse> => {
+  return apiInstance.put(`/${id}`, data);
+};
+
+export { getProductsAllApi, addProductApi, deleteProductApi, updateProductApi };
