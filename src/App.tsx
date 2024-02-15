@@ -1,63 +1,38 @@
-import { ChangeEvent, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-
-// 빠르게 완성하려고 코드를 짜서 가독성이 많이 안좋아요 죄송합니다 ㅠㅠ
-
-interface IProduct {
-  product: string;
-  price: string;
-  id: number;
-}
+import { getProductsAllApi } from "./api/home";
+import useOnChange from "./hooks/useOnChange";
+import useHandleSubmit from "./hooks/useHandleSubmit";
+import useDeleteProduct from "./hooks/useDeleteProduct";
 
 function App() {
+  const fetchData = async () => {
+    const response = await getProductsAllApi();
+    setProductData(response.data);
+  };
+
   const [productData, setProductData] = useState<IProduct[]>([]);
-  const [values, setValues] = useState<IProduct>({
+  const [values, setValues] = useState<IValue>({
     product: "",
     price: "",
-    id: 0,
   });
+  const { handleChange } = useOnChange({ setValues });
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const { handleDeleteProduct } = useDeleteProduct(fetchData);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = e.target;
+  const { handleSubmit } = useHandleSubmit({ values, setValues, fetchData });
 
-    if (name === "price" && !/^\d*$/.test(value)) {
-      return;
-    }
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-    setValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  useEffect(() => {
+    const newTotalPrice = productData.reduce((prev, current) => {
+      return prev + Number(current.price);
+    }, 0);
 
-  const handleSubmit = (e: ChangeEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-
-    if (!values.product || !values.price) {
-      alert("상품명과 비용을 모두 입력해주세요!");
-      return;
-    }
-    const newProduct = {
-      ...values,
-      id: Date.now(),
-    };
-
-    setProductData((prev) => [...prev, newProduct]);
-    setTotalPrice((prev) => prev + Number(values.price));
-    setValues({ product: "", price: "", id: 0 });
-  };
-
-  const handleDelete = (id: number) => {
-    setProductData((prev) => {
-      return prev.filter((product) => product.id !== id);
-    });
-
-    const productToDelete = productData.find((product) => product.id === id);
-    setTotalPrice((prev) => {
-      return prev - Number(productToDelete?.price);
-    });
-  };
+    setTotalPrice(newTotalPrice);
+  }, [productData]);
 
   return (
     <Body>
@@ -97,7 +72,7 @@ function App() {
               <ProductPrice>{product.price}원</ProductPrice>
               <DeleteButton
                 onClick={() => {
-                  handleDelete(product.id);
+                  handleDeleteProduct(product.id);
                 }}
               >
                 삭제
